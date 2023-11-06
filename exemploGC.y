@@ -10,8 +10,9 @@
 %token WHILE,TRUE, FALSE, IF, ELSE
 %token EQ, LEQ, GEQ, NEQ 
 %token AND, OR
+%token MAISATRIB
 
-%right '='
+%right '=' MAISATRIB
 %left OR
 %left AND
 %left  '>' '<' EQ LEQ GEQ NEQ
@@ -50,8 +51,8 @@ lcmd : lcmd cmd
 	   |
 	   ;
 	   
-cmd :  ID '=' exp	';' {  System.out.println("\tPOPL %EDX");
-  						   System.out.println("\tMOVL %EDX, _"+$1);
+cmd :  exp	';' {  System.out.println("\tPOPL %EDX");
+  						
 					     }
 			| '{' lcmd '}' { System.out.println("\t\t# terminou o bloco..."); }
 					     
@@ -98,7 +99,7 @@ cmd :  ID '=' exp	';' {  System.out.println("\tPOPL %EDX");
 											System.out.printf("\tJE rot_%02d\n", (int)pRot.peek()+1);
 										} 
 				cmd		{
-				  		System.out.printf("\tJMP rot_%02d   # terminou cmd na linha de cima\n", pRot.peek());
+				  		System.out.printf("\tJMP rot_%02d   \n", pRot.peek());
 							System.out.printf("rot_%02d:\n",(int)pRot.peek()+1);
 							pRot.pop();
 							}  
@@ -155,8 +156,25 @@ exp :  NUM  { System.out.println("\tPUSHL $"+$1); }
 		| exp NEQ exp		{ gcExpRel(NEQ); }											
 												
 		| exp OR exp		{ gcExpLog(OR); }											
-		| exp AND exp		{ gcExpLog(AND); }											
+		| exp AND exp		{ gcExpLog(AND); }	
 		
+		| ID '=' exp {  System.out.println("\tPOPL %EDX");
+										
+  						      System.out.println("\tMOVL %EDX, _"+$1);
+										System.out.println("\tPUSHL %EDX");
+					     }										
+		
+				| ID MAISATRIB exp { 
+
+
+											 	System.out.println("\tPUSHL _"+$1);
+												 gcExpArit('+'); 
+												 System.out.println("\tPOPL %EDX");
+  						          System.out.println("\tMOVL %EDX, _"+$1);
+											
+								        System.out.println("\tPUSHL %EDX");
+												
+					     }	
 		;							
 
 
